@@ -29,13 +29,21 @@ async function startBot() {
     sock.ev.on('creds.update', saveCreds)
 
     // Pairing Code ka logic
-    if(usePairingCode &&!sock.authState.creds.registered){
-        await new Promise(resolve => setTimeout(resolve, 3000))
-        const code = await sock.requestPairingCode(phoneNumber)
-        console.log(`\n=============================`)
-        console.log(` Pairing Code: ${code}`)
-        console.log(`=============================\n`)
-    }
+if(usePairingCode && !sock.authState.creds.registered){
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    const code = await sock.requestPairingCode(phoneNumber)
+    console.log(`\n=============================`)
+    console.log(` Pairing Code: ${code}`)
+    console.log(`=============================\n`)
+    
+    // 60 sec baad bot band ho jaye agar connect na ho
+    setTimeout(() => {
+        if(!sock.authState.creds.registered){
+            console.log("Pairing timeout. Restarting...")
+            process.exit(1)
+        }
+    }, 60000)
+}
 
     sock.ev.on('messages.upsert', async ({ messages }) => {
         const msg = messages[0]
