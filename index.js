@@ -10,6 +10,10 @@ const fs = require('fs')
 const yts = require('yt-search')
 require('./config')
 
+// Railway Variables
+const usePairingCode = process.env.USE_PAIRING_CODE === 'true'
+const phoneNumber = process.env.PHONE_NUMBER
+
 // ...
 
 async function startBot() {
