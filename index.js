@@ -32,7 +32,7 @@ async function startBot() {
             menu += `*.yt <name>* - ${fancy('YouTube Play')}\n`
             menu += `*.vv* - ${fancy('ViewOnce Download')}\n`
             menu += `*.sticker* - ${fancy('Make Sticker')}\n`
-            menu += `*.owner* - ${fancy('Owner Info')}\n`
+            menu += `*.owner* - ${fancy('Owner + All Links')}\n`
             menu += `*.tagall* - ${fancy('Tag All')}`
             return sock.sendMessage(from, { text: menu })
         }
@@ -55,9 +55,16 @@ async function startBot() {
         }
 
         if (command === 'owner') {
-            return sock.sendMessage(from, {
-                text: `*⚡ OWNER INFO ⚡*\n\n*Name:* ${fancy(global.ownerName)}\n*Number:* wa.me/${global.owner[0]}\n\n${fancy('Powered by DANGERS111 MD')}`
-            })
+            let ownerMsg = `*⚡ ${fancy('OWNER INFO')} ⚡*\n\n`
+            ownerMsg += `*Name:* ${fancy(global.ownerName)}\n`
+            ownerMsg += `*Number:* wa.me/${global.owner[0]}\n\n`
+            ownerMsg += `*📢 CHANNELS:*\n`
+            ownerMsg += `*WhatsApp:* ${global.whatsappChannel}\n`
+            ownerMsg += `*YouTube:* ${global.youtube}\n`
+            ownerMsg += `*Telegram:* ${global.telegram}\n\n`
+            ownerMsg += `${fancy('Powered by DANGERS111 MD')}`
+
+            return sock.sendMessage(from, { text: ownerMsg })
         }
     })
 
