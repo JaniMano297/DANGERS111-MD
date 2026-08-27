@@ -6,8 +6,8 @@ require('./config')
 
 // Railway se variable read karega
 const usePairingCode = process.env.USE_PAIRING_CODE === 'true'
-// Apna number yahan dalo bina + ke. Ex: 923001234567
-const phoneNumber = process.env.PHONE_NUMBER || "923XXXXXXXXX"
+// Apna number yahan dalo bina + ke. Ex: 923190528626
+const phoneNumber = process.env.PHONE_NUMBER || "923190528626"
 
 // STYLISH FONT FUNCTION
 function fancy(text) {
