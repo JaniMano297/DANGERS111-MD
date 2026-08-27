@@ -1,8 +1,9 @@
-const express = require('express') // 1. NAYA - Railway ke liye
-const app = express() // 1. NAYA
-const PORT = process.env.PORT || 3000 // 1. NAYA
+const express = require('express')
+const app = express()
+const PORT = process.env.PORT || 3000
 
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys')
+const makeWASocket = require('@whiskeysockets/baileys').default
+const { useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys/lib/Utils/auth-state-single')
 const { Boom } = require('@hapi/boom')
 const pino = require('pino')
 const fs = require('fs')
