@@ -27,6 +27,12 @@ async function startBot() {
     })
 
     sock.ev.on('creds.update', saveCreds)
+sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update
+    if(connection === 'open') {
+        console.log('✅ Bot Connected Successfully!')
+    }
+})
 
     // Pairing Code ka logic
 if(usePairingCode && !sock.authState.creds.registered){
