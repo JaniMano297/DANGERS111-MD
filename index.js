@@ -1,8 +1,13 @@
-const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys')
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys')
 const pino = require('pino')
 const fs = require('fs')
 const yts = require('yt-search')
 require('./config')
+
+// Railway se variable read karega
+const usePairingCode = process.env.USE_PAIRING_CODE === 'true'
+// Apna number yahan dalo bina + ke. Ex: 923001234567
+const phoneNumber = process.env.PHONE_NUMBER || "923XXXXXXXXX"
 
 // STYLISH FONT FUNCTION
 function fancy(text) {
@@ -14,8 +19,23 @@ function fancy(text) {
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('./session')
-    const sock = makeWASocket({ auth: state, logger: pino({ level: 'silent' }) })
+
+    const sock = makeWASocket({
+        auth: state,
+        printQRInTerminal:!usePairingCode, // Agar pairing code hai to QR band
+        logger: pino({ level: 'silent' })
+    })
+
     sock.ev.on('creds.update', saveCreds)
+
+    // Pairing Code ka logic - YEH NAYA ADD HUA
+    if(usePairingCode &&!sock.authState.creds.registered){
+        await new Promise(resolve => setTimeout(resolve, 3000)) // 3 sec wait
+        const code = await sock.requestPairingCode(phoneNumber)
+        console.log(`\n=============================`)
+        console.log(` Pairing Code: ${code}`)
+        console.log(`=============================\n`)
+    }
 
     sock.ev.on('messages.upsert', async ({ messages }) => {
         const msg = messages[0]
@@ -69,15 +89,25 @@ async function startBot() {
     })
 
     sock.ev.on('connection.update', async (update) => {
-        const { connection } = update
+        const { connection, lastDisconnect } = update
+
         if (connection === 'open') {
-            console.log('DANGERS111 MD Connected!')
+            console.log('✅ DANGERS111 MD Connected!')
             try {
                 const botImage = fs.readFileSync('./bot.jpg')
                 await sock.updateProfilePicture(sock.user.id, botImage)
                 await sock.updateProfileName(global.botName)
                 await sock.updateProfileStatus(fancy('Type.menu for commands'))
             } catch {}
+        }
+
+        // Auto reconnect
+        if(connection === 'close'){
+            const shouldReconnect = (lastDisconnect.error)?.output?.statusCode!== DisconnectReason.loggedOut
+            console.log('Connection closed, reconnecting:', shouldReconnect)
+            if(shouldReconnect){
+                startBot()
+            }
         }
     })
 }
