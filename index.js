@@ -3,35 +3,22 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 const makeWASocket = require('@whiskeysockets/baileys').default
-const { useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys/lib/Utils/auth-state-single')
+const { useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys') // CHANGE
 const { Boom } = require('@hapi/boom')
 const pino = require('pino')
 const fs = require('fs')
 const yts = require('yt-search')
 require('./config')
 
-// Railway se variable read karega
-const usePairingCode = process.env.USE_PAIRING_CODE === 'true'
-// Apna number yahan dalo bina + ke. Ex: 923190528626
-const phoneNumber = process.env.PHONE_NUMBER || "923190528626"
-
-// STYLISH FONT FUNCTION
-function fancy(text) {
-    const font = {
-        'a':'ᴀ','b':'ʙ','c':'ᴄ','d':'ᴅ','e':'ᴇ','f':'ғ','g':'ɢ','h':'ʜ','i':'ɪ','j':'ᴊ','k':'ᴋ','l':'ʟ','m':'ᴍ','n':'ɴ','o':'ᴏ','p':'ᴘ','q':'ǫ','r':'ʀ','s':'s','t':'ᴛ','u':'ᴜ','v':'ᴠ','w':'ᴡ','x':'x','y':'ʏ','z':'ᴢ'
-    }
-    return text.toLowerCase().split('').map(v => font[v] || v).join('')
-}
+// ...
 
 async function startBot() {
-    // CHANGE 1: Multi ki jagah Single File
-    const { state, saveCreds } = useSingleFileAuthState('./session.json')
+    const { state, saveCreds } = await useMultiFileAuthState('./session') // CHANGE
 
     const sock = makeWASocket({
         auth: state,
         printQRInTerminal:!usePairingCode,
         logger: pino({ level: 'silent' }),
-        // CHANGE 2: Ye line add ki hai Railway ke liye
         browser: ['DANGERS111-MD', 'Chrome', '1.0.0']
     })
 
