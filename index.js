@@ -1,3 +1,7 @@
+const express = require('express') // 1. NAYA - Railway ke liye
+const app = express() // 1. NAYA
+const PORT = process.env.PORT || 3000 // 1. NAYA
+
 const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys')
 const { Boom } = require('@hapi/boom')
 const pino = require('pino')
@@ -113,3 +117,7 @@ async function startBot() {
     })
 }
 startBot()
+
+// 2. NAYA - Railway ko zinda rakhne ke liye
+app.get('/', (req, res) => res.send('DANGERS111-MD is Running ✅'))
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
