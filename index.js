@@ -1,4 +1,5 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys')
+const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys')
+const { Boom } = require('@hapi/boom')
 const pino = require('pino')
 const fs = require('fs')
 const yts = require('yt-search')
@@ -18,19 +19,22 @@ function fancy(text) {
 }
 
 async function startBot() {
-    const { state, saveCreds } = await useMultiFileAuthState('./session')
+    // CHANGE 1: Multi ki jagah Single File
+    const { state, saveCreds } = useSingleFileAuthState('./session.json')
 
     const sock = makeWASocket({
         auth: state,
-        printQRInTerminal:!usePairingCode, // Agar pairing code hai to QR band
-        logger: pino({ level: 'silent' })
+        printQRInTerminal:!usePairingCode,
+        logger: pino({ level: 'silent' }),
+        // CHANGE 2: Ye line add ki hai Railway ke liye
+        browser: ['DANGERS111-MD', 'Chrome', '1.0.0']
     })
 
     sock.ev.on('creds.update', saveCreds)
 
-    // Pairing Code ka logic - YEH NAYA ADD HUA
+    // Pairing Code ka logic
     if(usePairingCode &&!sock.authState.creds.registered){
-        await new Promise(resolve => setTimeout(resolve, 3000)) // 3 sec wait
+        await new Promise(resolve => setTimeout(resolve, 3000))
         const code = await sock.requestPairingCode(phoneNumber)
         console.log(`\n=============================`)
         console.log(` Pairing Code: ${code}`)
@@ -83,14 +87,12 @@ async function startBot() {
             ownerMsg += `*YouTube:* ${global.youtube}\n`
             ownerMsg += `*Telegram:* ${global.telegram}\n\n`
             ownerMsg += `${fancy('Powered by DANGERS111 MD')}`
-
             return sock.sendMessage(from, { text: ownerMsg })
         }
     })
 
     sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update
-
         if (connection === 'open') {
             console.log('✅ DANGERS111 MD Connected!')
             try {
@@ -100,7 +102,6 @@ async function startBot() {
                 await sock.updateProfileStatus(fancy('Type.menu for commands'))
             } catch {}
         }
-
         // Auto reconnect
         if(connection === 'close'){
             const shouldReconnect = (lastDisconnect.error)?.output?.statusCode!== DisconnectReason.loggedOut
